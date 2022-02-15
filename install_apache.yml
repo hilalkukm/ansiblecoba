@@ -8,11 +8,41 @@
   - name: update repo
     apt:
       update_cache: yes
+    when: ansible_distribution == "Ubuntu"
 
   - name: install apache2
     apt:
       name: apache2
+    when: ansible_distribution == "Ubuntu"
 
   - name: tambah php support
     apt: 
       name: libapache2-mod-php
+    when: ansible_distribution == "Ubuntu"
+
+  - name: update repo
+    dnf:
+      update_cache: yes
+    when: ansible_distribution == "Rocky"
+
+  - name: install httpd / apache web server
+    dnf:
+      name: httpd
+    when: ansible_distribution == "Rocky"
+
+  - name: tambah php support
+    dnf:
+      name: php
+    when: ansible_distribution == "Rocky"
+
+  - name: pastikan httpd berjalan
+    systemd: 
+      state: started
+      name: httpd
+    when: ansible_distribution == "Rocky"
+
+  - firewalld:
+      service: http
+      permanent: yes
+      state: enabled
+    when: ansible_distribution == "Rocky"
