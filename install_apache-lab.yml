@@ -1,0 +1,83 @@
+---
+
+- hosts: web
+  become: true
+  tasks: 
+
+
+  - name: update repo
+    yum:
+      update_cache: yes
+    when: ansible_distribution == "CentOS"
+
+  - name: install httpd / apache web server
+    yum:
+      name: httpd
+    when: ansible_distribution == "CentOS"
+
+  - name: tambah php support
+    yum:
+      name: php
+    when: ansible_distribution == "CentOS"
+
+  - name: pastikan httpd berjalan
+    systemd: 
+      state: started
+      name: httpd
+    when: ansible_distribution == "CentOS"
+
+  - firewalld:
+      service: http
+      permanent: yes
+      state: enabled
+    when: ansible_distribution == "CentOS"
+
+  - name: restart service firewall
+    service:
+      name: firewalld
+      state: restarted
+
+  - name: Add repository epel
+    yum_repository:
+      name: epel
+      description: EPEL YUM repo
+      baseurl: https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+
+  - name: Add repository remi
+    yum_repository:
+      name: remi
+      description: REMI YUM repo
+      baseurl: https://rpms.remirepo.net/enterprise/remi-release-7.rpm
+
+- hosts: db
+  become: true
+  tasks:
+
+  - name: update repo
+    yum:
+      update_cache: yes
+    when: ansible_distribution == "CentOS"
+
+  - name: Add repository mysql
+    yum_repository:
+      name: mysql
+      description: MYSQL YUM repo
+      baseurl: https://dev.mysql.com/get/mysql57-community-release-el7-9.noarch.rpm
+
+  - name: install mysql
+    yum:
+      name: mysql-community-server
+
+- hosts: lb
+  become: true
+  tasks:
+
+  - name: update repo
+    yum:
+      update_cache: yes
+    when: ansible_distribution == "CentOS"
+
+  - name: install nginx
+    yum:
+      name: nginx
+
