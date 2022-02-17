@@ -1,10 +1,10 @@
 [web]
-192.168.159.110  ansible_connection=ssh  ansible_user=web
-192.168.159.111  ansible_connection=ssh  ansible_user=web
-192.168.159.112  ansible_connection=ssh  ansible_user=web
+192.168.70.141  ansible_connection=ssh  ansible_user=web
+192.168.70.142  ansible_connection=ssh  ansible_user=web
+192.168.70.143  ansible_connection=ssh  ansible_user=web
 
 [db]
-192.168.159.113 ansible_connection=ssh  ansible_user=db
+192.168.70.144 ansible_connection=ssh  ansible_user=db
 
 [lb]
-192.168.159.115 ansible_connection=ssh  ansible_user=lb
+192.168.70.140 ansible_connection=ssh  ansible_user=lb

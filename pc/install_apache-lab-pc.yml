@@ -8,46 +8,49 @@
   - name: update repo
     yum:
       update_cache: yes
-    when: ansible_distribution == "CentOS"
-
+    
   - name: install httpd / apache web server
     yum:
       name: httpd
-    when: ansible_distribution == "CentOS"
-
+    
   - name: tambah php support
     yum:
       name: php
-    when: ansible_distribution == "CentOS"
-
+    
   - name: pastikan httpd berjalan
     systemd: 
       state: started
       name: httpd
-    when: ansible_distribution == "CentOS"
-
+    
   - firewalld:
       service: http
       permanent: yes
       state: enabled
-    when: ansible_distribution == "CentOS"
-
+      
   - name: restart service firewall
     service:
       name: firewalld
       state: restarted
 
   - name: Add repository epel
-    yum_repository:
-      name: epel
-      description: EPEL YUM repo
-      baseurl: https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+    yum:
+      name: https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+      state: present
+
+  - name: Import EPEL GPG key
+    rpm_key:
+      key: /etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-{{ ansible_distribution_major_version }}
+      state: present
 
   - name: Add repository remi
-    yum_repository:
-      name: remi
-      description: REMI YUM repo
-      baseurl: https://rpms.remirepo.net/enterprise/remi-release-7.rpm
+    yum:
+      name: http://rpms.famillecollet.com/enterprise/remi-release-{{ ansible_distribution_major_version }}.rpm
+      state: present
+
+  - name: Import remi GPG key
+    rpm_key:
+      key: http://rpms.remirepo.net/RPM-GPG-KEY-remi
+      state: present
 
 - hosts: db
   become: true
@@ -56,17 +59,55 @@
   - name: update repo
     yum:
       update_cache: yes
-    when: ansible_distribution == "CentOS"
-
+    
   - name: Add repository mysql
-    yum_repository:
-      name: mysql
-      description: MYSQL YUM repo
-      baseurl: https://dev.mysql.com/get/mysql57-community-release-el7-9.noarch.rpm
+    yum: 
+      name: https://dev.mysql.com/get/mysql57-community-release-el7-9.noarch.rpm
+      state: present
 
-  - name: install mysql
+  - name: import repo key mysql
+    rpm_key:
+      state: present
+      key: https://repo.mysql.com/RPM-GPG-KEY-mysql-2022
+
+  - name: install mysql 5.7
     yum:
-      name: mysql-community-server
+      name: "{{item }}"
+      state: present
+    with_items:
+    - mysql-community-server
+    - mysql-community-client
+    - MySQL-python
+
+  - name: start mysql service
+    service:
+      name: mysqld
+      state: started
+      enabled: true
+
+  - name: remove test db when exist
+    mysql_db: 
+      name: test
+      state: absent
+
+  - name: remove anon user account
+    mysql_user:
+      name: ''
+      host: localhost
+      state: absent
+
+  - name: Change root password
+    shell: |
+      password_match=`awk '/A temporary password is generated for/ {a=$0} END{ print a }' /var/log/mysqld.log | awk '{print $(NF)}'`
+      echo $password_match
+      mysql -uroot -p$password_match --connect-expired-password -e "ALTER USER 'root'@'localhost' IDENTIFIED BY 'PassW0rd'; flush privileges; "
+      echo "[client]"
+      user=root
+      password=PassW0rd > /root/.my.cnf
+    args: 
+      creates: /root/.my.cnf
+    register: change_temp_pass
+    notify: restart mysqld
 
 - hosts: lb
   become: true
@@ -75,9 +116,8 @@
   - name: update repo
     yum:
       update_cache: yes
-    when: ansible_distribution == "CentOS"
-
+    
   - name: install nginx
     yum:
       name: nginx
-
+      state: present
