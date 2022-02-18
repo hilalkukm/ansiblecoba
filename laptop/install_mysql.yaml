@@ -1,0 +1,13 @@
+- hosts: db
+  become: true
+  tasks:
+
+  - name: remove repo key mysql
+    rpm_key:
+      key: https://repo.mysql.com/RPM-GPG-KEY-mysql-2022
+      state: absent
+
+  - name: remove mysql
+    yum:
+      name: https://dev.mysql.com/get/mysql57-community-release-el7-9.noarch.rpm
+      state: absent

@@ -52,7 +52,6 @@
       key: http://rpms.remirepo.net/RPM-GPG-KEY-remi
       state: present
 
-
 - hosts: db
   become: true
   tasks:
@@ -63,15 +62,14 @@
     
   - name: Add repository mysql
     yum: 
-      name: https://dev.mysql.com/get/mysql80-community-release-el7-5.noarch.rpm
+      name: https://dev.mysql.com/get/mysql57-community-release-el7-9.noarch.rpm
       state: present
 
-  - name: Disable Myql 8.0 Repo
-    shell: yum-config-manager --disable mysql80-community
+  - name: import repo key mysql
+    rpm_key:
+      state: present
+      key: https://repo.mysql.com/RPM-GPG-KEY-mysql-2022
 
-  - name: Enable Mysql 5.7 Repo
-    shell: yum-config-manager --enable mysql57-community
-  
   - name: install mysql 5.7
     yum:
       name: "{{item }}"
@@ -87,6 +85,30 @@
       state: started
       enabled: true
 
+  - name: remove test db when exist
+    mysql_db: 
+      name: test
+      state: absent
+
+  - name: remove anon user account
+    mysql_user:
+      name: ''
+      host: localhost
+      state: absent
+
+  - name: Change root password
+    shell: |
+      password_match=`awk '/A temporary password is generated for/ {a=$0} END{ print a }' /var/log/mysqld.log | awk '{print $(NF)}'`
+      echo $password_match
+      mysql -uroot -p$password_match --connect-expired-password -e "ALTER USER 'root'@'localhost' IDENTIFIED BY 'PassW0rd'; flush privileges; "
+      echo "[client]"
+      user=root
+      password=PassW0rd > /root/.my.cnf
+    args: 
+      creates: /root/.my.cnf
+    register: change_temp_pass
+    notify: restart mysqld
+
 - hosts: lb
   become: true
   tasks:
@@ -95,17 +117,6 @@
     yum:
       update_cache: yes
     
-
-  - name: Add repository epel
-    yum:
-      name: https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
-      state: present
-
-  - name: Import EPEL GPG key
-    rpm_key:
-      key: /etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-{{ ansible_distribution_major_version }}
-      state: present
-
   - name: install nginx
     yum:
       name: nginx

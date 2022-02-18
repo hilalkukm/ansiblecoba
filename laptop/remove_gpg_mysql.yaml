@@ -1,0 +1,14 @@
+- hosts: db
+  become: true
+  tasks:
+
+  - name: remove repo key mysql
+    rpm_key:
+      key: https://repo.mysql.com/RPM-GPG-KEY-mysql-2022
+      state: absent
+
+  - name: remove mysql repo folder
+    shell: sudo rm -f /etc/yum.repos.d/mysql.repo
+  
+  - name: remove repo mysql
+    shell: sudo yum remove mysql57-community-release-el7-9.noarch
