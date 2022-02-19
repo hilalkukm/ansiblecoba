@@ -30,4 +30,7 @@
     service:
       name: mysqld
       state: started
-      enabled: true  
+      enabled: true
+  
+  - name: Lihat root password temporary mysql
+    shell: sudo awk -F': ' '/temporary password/{print $2}' /var/log/mysqld.log
