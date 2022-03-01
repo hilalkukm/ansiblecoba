@@ -1,0 +1,33 @@
+- hosts: db
+  become: true
+  tasks:
+
+  - name: update repo
+    yum:
+      update_cache: yes
+
+  - name: Add repository mysql
+    yum:
+      name: https://dev.mysql.com/get/mysql80-community-release-el7-5.noarch.rpm
+      state: present
+
+  - name: Disable Myql 8.0 Repo
+    shell: yum-config-manager --disable mysql80-community
+
+  - name: Enable Mysql 5.7 Repo
+    shell: yum-config-manager --enable mysql57-community
+
+  - name: install mysql 5.7
+    yum:
+      name: "{{item }}"
+      state: present
+    with_items:
+    - mysql-community-server
+    - mysql-community-client
+    - MySQL-python
+
+  - name: start mysql service
+    service:
+      name: mysqld
+      state: started
+      enabled: true  

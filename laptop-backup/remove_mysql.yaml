@@ -1,0 +1,14 @@
+---
+- hosts: db
+  become: true
+  tasks:
+  
+  - name: remove mysql 5.7
+    yum:
+      name: "{{item }}"
+      state: absent
+    with_items:
+    - mysql-community-server
+    - mysql-community-client
+    - MySQL-python
+
