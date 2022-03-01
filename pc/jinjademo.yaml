@@ -1,0 +1,10 @@
+---
+- name: jinja filtering
+  hosts: localhost
+  vars: 
+    ping_value: "{{ lookup('file', '/etc/passwd/') }}"
+  tasks: 
+
+  - debug: 
+      msg: "Ping Value is {{ ping_value }}"
+

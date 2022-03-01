@@ -1,10 +1,14 @@
+[controller]
+192.168.70.102  
+
 [web]
-192.168.70.141  ansible_connection=ssh  ansible_user=web
-192.168.70.142  ansible_connection=ssh  ansible_user=web
-192.168.70.143  ansible_connection=ssh  ansible_user=web
+192.168.70.141  
+192.168.70.142  
+192.168.70.143  
 
 [db]
-192.168.70.144 ansible_connection=ssh  ansible_user=db
+192.168.70.144 
 
 [lb]
-192.168.70.140 ansible_connection=ssh  ansible_user=lb
+192.168.70.140 
+
