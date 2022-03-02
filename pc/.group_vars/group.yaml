@@ -1,0 +1,9 @@
+---
+web:
+  ansible_user: web
+
+db:
+  ansible_user: db
+
+lb:
+  ansible_user: lb

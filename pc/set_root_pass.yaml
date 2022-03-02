@@ -1,0 +1,19 @@
+---
+- hosts: db
+  become: true
+  tasks:
+
+  - name: Set root password
+    mysql_user: 
+      name: root
+      host: "{{ item }}"
+      password: "{{ mysql_root_password }}"
+      check_implicit_admin: true
+      login_user: "{{ mysql_user  }}"
+      login_password: "{{ mysql_old_root_password }}"
+      state: present
+    with_items: 
+    - $ansible_hostname
+    - 127.0.0.1
+    - ::1
+    - localhost

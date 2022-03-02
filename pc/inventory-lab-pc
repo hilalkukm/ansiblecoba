@@ -1,14 +1,29 @@
 [controller]
 192.168.70.102  
 
+[controller:vars]
+ansible_connection=ssh
+ansible_user=hilal
+
 [web]
 192.168.70.141  
 192.168.70.142  
 192.168.70.143  
 
+[web:vars]
+ansible_connection=ssh
+ansible_user=web
+
 [db]
 192.168.70.144 
+
+[db:vars]
+ansible_connection=ssh
+ansible_user=db
 
 [lb]
 192.168.70.140 
 
+[lb:vars]
+ansible_connection=ssh
+ansible_user=lb
