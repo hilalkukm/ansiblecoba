@@ -1,0 +1,10 @@
+[web]
+192.168.70.141  ansible_connection=ssh  ansible_user=web
+192.168.70.142  ansible_connection=ssh  ansible_user=web
+192.168.70.143  ansible_connection=ssh  ansible_user=web
+
+[db]
+192.168.70.144 ansible_connection=ssh  ansible_user=db
+
+[lb]
+192.168.70.140 ansible_connection=ssh  ansible_user=lb

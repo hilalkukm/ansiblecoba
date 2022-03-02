@@ -1,0 +1,16 @@
+---
+- hosts: db
+  become: true
+  tasks:
+
+  - name: Lihat root password temporary mysql
+    shell: "sudo awk -F': ' '/temporary password/{print $2}' /var/log/mysqld.log"
+    register: mysql_root_temp_pass
+   
+  - name: Set new root password from default
+    shell: "mysql -e \"SET PASSWORD = coba123;\"
+           --connect-expired-password -uroot -p'{{ mysql_root_temp_pass.stdout }}'
+           && touch touch /root/.my.password.changed"
+    args: 
+      creates: /root/.my.password.changed
+

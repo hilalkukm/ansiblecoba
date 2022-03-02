@@ -1,0 +1,12 @@
+---
+- hosts: db
+  become: true
+  tasks:
+  
+  - name: Set Mysql root passs
+    mysql_user:
+      login_host: 'localhost'
+      login_password: 'ffUjBfvkl9%w'
+      name: 'root'
+      password: '{{ mysql_pass }}'
+      state: present
